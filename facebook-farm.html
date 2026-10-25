@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facebook Farm — Glam's Intake, Vault &amp; Queue</title>
+<style>
+  :root{
+    --sapphire:#7fb2e5; --sapphire-deep:#4a86c5; --chrome:#c9d4e0; --pearl:#fdfdff;
+    --ink:#2b3a4a; --soft:#5b7186; --line:#dbe7f3; --mint:#eaf7f1; --gold:#c9a227;
+    --grad:linear-gradient(135deg,#a8cbf2 0%,#e8eef5 55%,#fdfdff 100%);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--grad);color:var(--ink);min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 14px 40px}
+  header.hero{background:var(--pearl);border:1px solid var(--line);border-radius:20px;padding:22px 20px;box-shadow:0 8px 24px rgba(74,134,197,.12);text-align:center}
+  header.hero h1{margin:0;font-size:34px;letter-spacing:2px;color:var(--sapphire-deep)}
+  header.hero .sub{margin:6px 0 0;color:var(--soft);font-style:italic}
+  .pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .pill{border:1px solid var(--chrome);background:#f2f7fc;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft)}
+  nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+  nav.tabs button{flex:1 1 150px;padding:12px 8px;border-radius:14px;border:1px solid var(--chrome);background:var(--pearl);font-family:inherit;font-size:15px;cursor:pointer;color:var(--ink);box-shadow:0 2px 6px rgba(74,134,197,.08)}
+  nav.tabs button.active{background:var(--sapphire-deep);color:#fff;border-color:var(--sapphire-deep)}
+  .badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--gold);color:#fff;font-size:12px;margin-left:6px}
+  section.page{display:none;background:var(--pearl);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(74,134,197,.08)}
+  section.page.active{display:block}
+  h2{margin-top:0;color:var(--sapphire-deep)}
+  h3{color:var(--sapphire-deep)}
+  label{display:block;font-weight:bold;margin:14px 0 5px;font-size:14px}
+  input,select,textarea{width:100%;padding:10px;border:1px solid var(--chrome);border-radius:10px;font-family:inherit;font-size:15px;background:#fbfdff}
+  textarea{min-height:70px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.row{grid-template-columns:1fr}}
+  .btn{display:inline-block;margin-top:14px;padding:11px 20px;border-radius:12px;border:1px solid var(--sapphire-deep);background:var(--sapphire-deep);color:#fff;font-family:inherit;font-size:15px;cursor:pointer}
+  .btn.light{background:#fff;color:var(--sapphire-deep)}
+  .btn.small{padding:6px 12px;font-size:13px;margin-top:0}
+  .note{background:var(--mint);border:1px solid #cfe8da;border-radius:12px;padding:12px 14px;font-size:14px}
+  .warn{background:#fdf3e3;border:1px solid #ecd9ac;border-radius:12px;padding:12px 14px;font-size:14px}
+  .err{color:#b3261e;font-size:14px;margin-top:6px}
+  .ok{color:#1e7d46;font-size:14px;margin-top:6px}
+  .card{border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;background:#fbfdff}
+  .card h4{margin:0 0 6px}
+  .meta{font-size:14px;color:var(--soft);line-height:1.55}
+  .angle{font-style:italic;color:var(--ink)}
+  .statusbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .statusbtns button{padding:6px 12px;border-radius:999px;border:1px solid var(--chrome);background:#fff;cursor:pointer;font-family:inherit;font-size:13px}
+  .statusbtns button.on{background:var(--sapphire-deep);color:#fff;border-color:var(--sapphire-deep)}
+  .thumbs{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .thumb{width:110px;text-align:center;font-size:12px;color:var(--soft)}
+  .thumb img{width:110px;height:196px;object-fit:cover;border-radius:10px;border:1px solid var(--chrome);background:#eef4fa}
+  .thumb .missing{width:110px;height:196px;border-radius:10px;border:1px dashed var(--chrome);display:flex;align-items:center;justify-content:center;background:#f6fafd;padding:6px}
+  pre.prompt{white-space:pre-wrap;background:#f2f7fc;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px;line-height:1.5}
+  .empty{color:var(--soft);font-style:italic;padding:18px;text-align:center;border:1px dashed var(--chrome);border-radius:14px}
+  footer.cta{margin-top:22px;text-align:center}
+  footer.cta .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  footer.cta a{flex:0 1 260px;text-align:center;text-decoration:none;padding:13px;border-radius:999px;font-size:15px}
+  footer.cta a.join{background:var(--sapphire-deep);color:#fff;border:1px solid var(--sapphire-deep)}
+  footer.cta a.shop{background:#fff;color:var(--sapphire-deep);border:1px solid var(--sapphire-deep)}
+  footer.cta .fine{color:var(--soft);font-size:12.5px;margin-top:10px}
+  ul.tight{line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>🦋 FACEBOOK FARM</h1>
+    <p class="sub">My intake, my vault, my queue — for Facebook only.</p>
+    <div class="pills">
+      <span class="pill">Profile • Page • Group</span>
+      <span class="pill">7 agents</span>
+      <span class="pill">9 modes</span>
+      <span class="pill">Showcase OR Sell — never both</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="home" class="active">🏠 Home</button>
+    <button data-tab="intake">📝 1. Facebook Intake</button>
+    <button data-tab="vault">🔐 2. Persona Vault <span class="badge" id="vaultBadge">0</span></button>
+    <button data-tab="content">🗄️ 3. Content Vault <span class="badge" id="assetBadge">0</span></button>
+    <button data-tab="solo">🎯 4. Solo Agents</button>
+    <button data-tab="queue">📋 5. Queue <span class="badge" id="queueBadge">0</span></button>
+  </nav>
+
+  <!-- HOME -->
+  <section class="page active" id="page-home">
+    <h2>How this farm works</h2>
+    <p>This dashboard is my <strong>intake, vault and queue control panel</strong> for Facebook. I can pick an agent by itself, use a solo form by itself, or use the full Facebook Intake Form for a complete farm run — all in this one place.</p>
+    <div class="warn"><strong>Plain truth:</strong> this dashboard does <strong>not</strong> by itself post to Facebook, browse Facebook, check my analytics or monetization, generate images, make reels or schedule anything when I submit a form. Those steps are done by <strong>Muse in chat</strong> after submission, using Run in Chat — the Money &amp; Analytics Scout reads my numbers in chat too, not inside this dashboard. Nothing is auto-posted. Every post still needs my approval — my tap or my go-ahead in chat. If Facebook is signed out, Muse pauses and tells me; nobody enters my password.</div>
+
+    <h3>The v2 run order — numbers first, vault second, create last</h3>
+    <ul class="tight">
+      <li><strong>Step 1 — Money &amp; Analytics Scout reads the numbers:</strong> my monetization, bonuses, challenges, Page insights and group growth, and hands me Today's Money Moves.</li>
+      <li><strong>Step 2 — Repurpose Agent checks the Content Vault:</strong> what I already have gets used first — vault first, create second.</li>
+      <li><strong>Step 3 — the other agents create only what's missing:</strong> new content only fills a gap the vault can't.</li>
+    </ul>
+
+    <h3>The 3 destinations — every run picks exactly ONE</h3>
+    <ul class="tight">
+      <li><strong>Personal Profile</strong> (Glamorousgrammy Glowup) — daily photo, text and reel posts. Photo posts can tag Elkhart, Indiana.</li>
+      <li><strong>Business Page</strong> (Animated Greetings by Glam) — the greeting series and business posts. Captions here may carry a Payhip link.</li>
+      <li><strong>The Glow Up Society</strong> (my group) — SHOWCASE by default. No buy links unless it's my own launch post or a promo thread where promo is allowed. Engagement lives here.</li>
+    </ul>
+
+    <h3>The 7 agents, in order</h3>
+    <ul class="tight">
+      <li><strong>Agent 1 — Money &amp; Analytics Scout:</strong> checks my profile Professional Dashboard monetization + bonuses, my Page insights, my group growth and my top posts by format. Tracks every active challenge — what it pays, the rules, the deadline, my progress. Never invents numbers. Its output is <strong>Today's Money Moves</strong>, a ranked list of what to do next.</li>
+      <li><strong>Agent 2 — Repurpose Agent:</strong> searches the Content Vault FIRST, before anything new is created. <strong>Vault first, create second</strong> — new content only fills a gap the vault can't. Refreshes my winners with a new hook, a new caption or a new format: photo → story, reel → greeting, or a straight winner repost.</li>
+      <li><strong>Agent 3 — Facebook Scout:</strong> finds the topic and hook from what's already winning on MY Facebook — Page insights, group comments and buyer intent, my best past posts, the season, my Payhip catalog. Never invents sales numbers or prices.</li>
+      <li><strong>Agent 4 — Image Agent:</strong> creates images in chat, all PNG. For Glam: starts from my REAL uploaded photo and converts it to the styled glam version — never a doll when a real photo exists, never slimmed down. Feed photos 4:5, reel/story art 9:16.</li>
+      <li><strong>Agent 5 — Caption &amp; Script Agent:</strong> hook, caption, first comment, hashtags. Captions speak to my people first (women over 40, plus-size, the overlooked) and end with a comment trigger. Reel scripts: persona voice + scene action only, never a description of the persona.</li>
+      <li><strong>Agent 6 — Reel Agent:</strong> builds the reel with Muse's video tool in chat. Music LOW under the voiceover, AI label ON, returned in chat for approval. Never posts it.</li>
+      <li><strong>Agent 7 — Post &amp; Monetize Agent:</strong> checks destination, format, Post Angle, link/code in the first comment on Sell runs, Elkhart location on photo posts, AI label on reels — then hands me the exact post for my approval tap.</li>
+    </ul>
+
+    <h3>The 9 modes</h3>
+    <ul class="tight">
+      <li><strong>1. Daily Photo Post</strong> — my #1 organic earner. Real photo, styled glam version, 4:5, Elkhart tag.</li>
+      <li><strong>2. Daily Text Post</strong> — text only, proven style, ends with a question.</li>
+      <li><strong>3. Reel</strong> — 9:16, voiceover dominant, music low, AI label on. Reels unlock bonuses.</li>
+      <li><strong>4. Animated Greeting</strong> — Page series, one greeting a day.</li>
+      <li><strong>5. Group Launch Post</strong> — my launch in the group: offer in the post, ONE code with limited uses, claim in the comments, money comment pinned.</li>
+      <li><strong>6. Group Showcase Post</strong> — pure showcase. No link, no price. Engagement only.</li>
+      <li><strong>7. Story Boost</strong> — 9:16 story version of the day's winner.</li>
+      <li><strong>8. Analytics Check</strong> — Money Scout run: numbers, challenges, Money Moves.</li>
+      <li><strong>9. Repurpose Run</strong> — vault first: pick a saved asset, refresh it, queue it.</li>
+    </ul>
+
+    <h3>The Post Angle rule — either / or, never both</h3>
+    <p>Every run saves ONE Post Angle, right after Mode:</p>
+    <ul class="tight">
+      <li><strong>Showcase:</strong> <em>"Showcase only. No buy link, no price. End with a comment trigger and let the comments do the work."</em></li>
+      <li><strong>Sell:</strong> <em>"Sell it. The caption carries the value, the first comment carries the Payhip link and code, and the call to action tells them exactly what to tap."</em></li>
+    </ul>
+    <p>Never both in one post. If a run needs both, showcase first and sell later — two separate posts.</p>
+
+    <h3>How Run in Chat works</h3>
+    <p>Every Queue item has a <strong>Run in Chat</strong> button. It sets that item to <em>working</em> and opens a card with the full details and the persona's slot thumbnails. Copy the prompt from that card, paste it into chat, and Muse runs that exact run — nothing swapped. There is no scheduled pickup. My existing daily Facebook schedules are separate; this dashboard does not touch them.</p>
+    <p class="note">Queue status buttons only change the label — queued, working or done. Changing a status does not post, browse, generate or schedule anything.</p>
+  </section>
+
+  <!-- INTAKE -->
+  <section class="page" id="page-intake">
+    <h2>📝 Facebook Intake Form — full farm run</h2>
+    <form id="intakeForm">
+      <label>1. Locked persona</label>
+      <select id="inPersona"></select>
+      <p class="meta">No locked persona yet? <a href="#" id="goVault">Create one in the Persona Vault →</a></p>
+
+      <label>2. Destination (exactly one)</label>
+      <select id="inDest">
+        <option>Personal Profile</option>
+        <option>Business Page — Animated Greetings by Glam</option>
+        <option>The Glow Up Society (group)</option>
+      </select>
+
+      <label>3. Mode</label>
+      <select id="inMode"></select>
+
+      <label>4. Post Angle (ONE choice — right after Mode)</label>
+      <select id="inAngle">
+        <option>Showcase</option>
+        <option>Sell</option>
+      </select>
+      <p class="meta angle" id="anglePreview"></p>
+
+      <label>5. Topic</label>
+      <input id="inTopic" required placeholder="What is this post about?">
+
+      <label>6. Length / format</label>
+      <input id="inLength" placeholder="e.g. Photo 4:5, Reel 15 seconds, Text only">
+
+      <label>7. Product name and Payhip link (when there is one)</label>
+      <div class="row">
+        <input id="inProdName" placeholder="Product name">
+        <input id="inProdLink" placeholder="https://payhip.com/b/...">
+      </div>
+
+      <label>8. Reference post or video link (when there is one)</label>
+      <input id="inRefLink" placeholder="https://...">
+
+      <label>9. Location: Elkhart, Indiana (photo posts only — reels have no location field)</label>
+      <select id="inLocation"><option>ON</option><option>OFF</option></select>
+
+      <label>10. Notes</label>
+      <textarea id="inNotes" placeholder="Anything else Muse needs to know"></textarea>
+
+      <button class="btn" type="submit">Save run to Queue</button>
+      <p class="ok" id="intakeSaved"></p>
+    </form>
+  </section>
+
+  <!-- VAULT -->
+  <section class="page" id="page-vault">
+    <h2>🔐 Persona Vault — locked personas</h2>
+    <p class="meta">A persona is <strong>locked</strong> only when BOTH slots are filled. Slot 1: reference photo, 9:16. Slot 2: ONE single 9:16 style reference sheet with front, side view, profile and three-quarter shots of the same persona in the same look, all on that same photo. Uploads are accepted as <strong>JPG or PNG</strong>, as you saved them — WebP is rejected. For Glam, Slot 1 is a REAL photo. Never slimmed down, ever.</p>
+    <form id="vaultForm">
+      <div class="row">
+        <div><label>Persona name</label><input id="vName" required placeholder="e.g. Glam, Renee, Marcus"></div>
+        <div><label>Voice description</label><input id="vVoice" placeholder="e.g. My own voice / no voiceover"></div>
+      </div>
+      <label>Slot 1 — reference photo (9:16, JPG or PNG)</label>
+      <input type="file" id="vSlot1" accept=".jpg,.jpeg,.png">
+      <label>Slot 2 — single 9:16 style reference sheet (JPG or PNG)</label>
+      <input type="file" id="vSlot2" accept=".jpg,.jpeg,.png">
+      <p class="err" id="vaultErr"></p>
+      <button class="btn" type="submit">Save persona</button>
+    </form>
+    <h3>Locked personas</h3>
+    <div id="vaultList"></div>
+  </section>
+
+  <!-- CONTENT VAULT -->
+  <section class="page" id="page-content">
+    <h2>🗄️ Content Vault — what I already have</h2>
+    <p class="meta">Every photo, reel, text post and greeting I already own, logged in one place. The <strong>Repurpose Agent</strong> searches this vault FIRST, before anything new is created — <strong>vault first, create second</strong>. New content only fills a gap the vault can't. Saved in this browser only; Muse works the vault in chat.</p>
+    <form id="assetForm">
+      <label>Asset name</label>
+      <input id="aName" required placeholder="e.g. Red fireplace photo, Vault Remix 1 — Toolbox reel">
+      <div class="row">
+        <div>
+          <label>Type</label>
+          <select id="aType">
+            <option>Photo</option>
+            <option>Video / Reel</option>
+            <option>Text post</option>
+            <option>Greeting</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="aStatus">
+            <option>Unused</option>
+            <option>Used once</option>
+            <option>Winner</option>
+            <option>Repurpose-ready</option>
+          </select>
+        </div>
+      </div>
+      <label>Where it lives (link or file note)</label>
+      <input id="aWhere" placeholder="e.g. https://www.facebook.com/reel/... or file name / folder">
+      <label>Notes</label>
+      <textarea id="aNotes" placeholder="What it is, how it did, how it could be refreshed"></textarea>
+      <button class="btn" type="submit">Save asset to Content Vault</button>
+      <p class="ok" id="assetSaved"></p>
+    </form>
+    <h3>Saved assets — newest first</h3>
+    <div id="assetList"></div>
+  </section>
+
+  <!-- SOLO -->
+  <section class="page" id="page-solo">
+    <h2>🎯 Solo Agent Forms — one agent, one job</h2>
+    <label>Pick an agent</label>
+    <select id="soloAgent">
+      <option>Agent 1 — Money &amp; Analytics Scout</option>
+      <option>Agent 2 — Repurpose Agent</option>
+      <option>Agent 3 — Facebook Scout</option>
+      <option>Agent 4 — Image Agent</option>
+      <option>Agent 5 — Caption &amp; Script Agent</option>
+      <option>Agent 6 — Reel Agent</option>
+      <option>Agent 7 — Post &amp; Monetize Agent</option>
+    </select>
+    <form id="soloForm">
+      <div id="soloMoneyWrap" style="display:none">
+        <label>Money Scout — what to check</label>
+        <select id="sMoneyScope">
+          <option>Full analytics check — numbers, challenges, Money Moves</option>
+          <option>Monetization &amp; bonuses only</option>
+          <option>Challenges only — what pays, rules, deadlines, progress</option>
+          <option>Top posts by format only</option>
+        </select>
+        <p class="meta">The Money Scout runs in chat: it reads my real numbers and never invents any. Output: Today's Money Moves, ranked.</p>
+      </div>
+      <div id="soloRepurposeWrap" style="display:none">
+        <label>Repurpose — Content Vault asset</label>
+        <select id="sAsset"></select>
+        <label>Repurpose — refresh plan</label>
+        <select id="sRefresh">
+          <option>New hook + new caption, same asset</option>
+          <option>New format — photo → story</option>
+          <option>New format — reel → greeting</option>
+          <option>New format — photo → reel</option>
+          <option>Straight winner repost</option>
+          <option>Muse picks the refresh in chat</option>
+        </select>
+        <p class="meta">Vault first, create second. Pick a saved asset — or let Muse search the whole Content Vault in chat.</p>
+      </div>
+      <div id="soloPersonaWrap"><label>Persona (when relevant)</label><select id="sPersona"></select></div>
+      <label>Destination</label>
+      <select id="sDest">
+        <option>Personal Profile</option>
+        <option>Business Page — Animated Greetings by Glam</option>
+        <option>The Glow Up Society (group)</option>
+      </select>
+      <label>Mode</label>
+      <select id="sMode"></select>
+      <div id="soloAngleWrap" style="display:none">
+        <label>Post Angle (ONE choice)</label>
+        <select id="sAngle"><option>Showcase</option><option>Sell</option></select>
+        <p class="meta angle" id="sAnglePreview"></p>
+      </div>
+      <label>Topic</label>
+      <input id="sTopic" required placeholder="What is this job about?">
+      <label>Length / format</label>
+      <input id="sLength" placeholder="e.g. Reel 15 seconds, Photo 4:5">
+      <div class="row">
+        <div><label>Product name (when there is one)</label><input id="sProdName"></div>
+        <div><label>Payhip link (when there is one)</label><input id="sProdLink"></div>
+      </div>
+      <label>Reference post or video link (when there is one)</label>
+      <input id="sRefLink">
+      <label>Notes / task details</label>
+      <textarea id="sNotes"></textarea>
+      <button class="btn" type="submit">Create solo prompt + save to Queue</button>
+    </form>
+    <div id="soloOut" style="display:none">
+      <h3>Ready-to-copy solo prompt</h3>
+      <pre class="prompt" id="soloPrompt"></pre>
+      <button class="btn light" id="soloCopy">📋 Copy prompt</button>
+      <span class="ok" id="soloCopied"></span>
+    </div>
+  </section>
+
+  <!-- QUEUE -->
+  <section class="page" id="page-queue">
+    <h2>📋 Queue — runs &amp; solo jobs, newest first</h2>
+    <p class="meta">Status is manual — queued, working or done. Changing it only changes the label. It does not post, browse, generate or schedule anything. Real execution starts from <strong>Run in Chat</strong>.</p>
+    <div id="runCardWrap" style="display:none">
+      <h3>▶ Run in Chat card</h3>
+      <div class="card" id="runCard"></div>
+      <pre class="prompt" id="runPrompt"></pre>
+      <button class="btn" id="runCopy">📋 Copy prompt — paste into chat</button>
+      <span class="ok" id="runCopied"></span>
+      <button class="btn light" id="runClose">Close card</button>
+    </div>
+    <div id="queueList"></div>
+  </section>
+
+  <footer class="cta">
+    <div class="btns">
+      <a class="join" href="https://payhip.com/b/54LoK" target="_blank" rel="noopener">Join The Glam Vault</a>
+      <a class="shop" href="https://glamhustlehub.com" target="_blank" rel="noopener">Visit Glam Hustle Hub</a>
+    </div>
+    <p class="fine">🦋 Facebook Farm — built for Glam. This dashboard executes nothing by itself; Muse runs every job in chat, and nothing is auto-posted.</p>
+  </footer>
+</div>
+
+<script>
+var MODES = ["Daily Photo Post","Daily Text Post","Reel","Animated Greeting","Group Launch Post","Group Showcase Post","Story Boost","Analytics Check","Repurpose Run"];
+var ANGLE_SENTENCES = {
+  "Showcase": "Showcase only. No buy link, no price. End with a comment trigger and let the comments do the work.",
+  "Sell": "Sell it. The caption carries the value, the first comment carries the Payhip link and code, and the call to action tells them exactly what to tap."
+};
+var personas = JSON.parse(localStorage.getItem("fbfarm_personas") || "[]");
+var queue = JSON.parse(localStorage.getItem("fbfarm_queue") || "[]");
+var assets = JSON.parse(localStorage.getItem("fbfarm_assets") || "[]");
+
+function saveAll(){
+  try{
+    localStorage.setItem("fbfarm_personas", JSON.stringify(personas));
+    localStorage.setItem("fbfarm_queue", JSON.stringify(queue));
+    localStorage.setItem("fbfarm_assets", JSON.stringify(assets));
+  }catch(e){ alert("Storage is full — a photo may be too large. Try a smaller JPG."); }
+  renderAll();
+}
+function letterFor(i){ return String.fromCharCode(65 + i); }
+function personaById(id){ for(var i=0;i<personas.length;i++){ if(personas[i].id===id) return personas[i]; } return null; }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+function showTab(name){
+  var pages = document.querySelectorAll("section.page");
+  for(var i=0;i<pages.length;i++){ pages[i].classList.toggle("active", pages[i].id==="page-"+name); }
+  var btns = document.querySelectorAll("nav.tabs button");
+  for(var j=0;j<btns.length;j++){ btns[j].classList.toggle("active", btns[j].getAttribute("data-tab")===name); }
+}
+var tabBtns = document.querySelectorAll("nav.tabs button");
+for(var t=0;t<tabBtns.length;t++){ tabBtns[t].addEventListener("click", function(){ showTab(this.getAttribute("data-tab")); }); }
+document.getElementById("goVault").addEventListener("click", function(e){ e.preventDefault(); showTab("vault"); });
+
+function fillSelect(id, items){
+  var sel = document.getElementById(id); sel.innerHTML = "";
+  for(var i=0;i<items.length;i++){ var o=document.createElement("option"); o.textContent=items[i]; sel.appendChild(o); }
+}
+function fillPersonaSelect(id, allowNone){
+  var sel = document.getElementById(id); sel.innerHTML = "";
+  if(allowNone){ var o0=document.createElement("option"); o0.value=""; o0.textContent="— none / not relevant —"; sel.appendChild(o0); }
+  if(personas.length===0 && !allowNone){ var o=document.createElement("option"); o.value=""; o.textContent="— no locked persona yet —"; sel.appendChild(o); }
+  for(var i=0;i<personas.length;i++){
+    var p=personas[i]; var o2=document.createElement("option");
+    o2.value=p.id; o2.textContent="Persona "+p.letter+" — "+p.name+(p.slot1&&p.slot2?" (locked)":" (not locked)");
+    sel.appendChild(o2);
+  }
+}
+
+function anglePreviewSync(){
+  var a=document.getElementById("inAngle").value;
+  document.getElementById("anglePreview").textContent = ANGLE_SENTENCES[a];
+  var sa=document.getElementById("sAngle").value;
+  document.getElementById("sAnglePreview").textContent = ANGLE_SENTENCES[sa];
+}
+document.getElementById("inAngle").addEventListener("change", anglePreviewSync);
+document.getElementById("sAngle").addEventListener("change", anglePreviewSync);
+
+function soloAngleSync(){
+  var a=document.getElementById("soloAgent").value;
+  var needs = (a.indexOf("Agent 5")===0 || a.indexOf("Agent 6")===0);
+  document.getElementById("soloAngleWrap").style.display = needs ? "block" : "none";
+  document.getElementById("soloMoneyWrap").style.display = (a.indexOf("Agent 1")===0) ? "block" : "none";
+  document.getElementById("soloRepurposeWrap").style.display = (a.indexOf("Agent 2")===0) ? "block" : "none";
+}
+document.getElementById("soloAgent").addEventListener("change", soloAngleSync);
+
+/* ---------- VAULT ---------- */
+function readSlot(fileInput, cb){
+  var f = fileInput.files && fileInput.files[0];
+  if(!f){ cb(null); return; }
+  var name = f.name.toLowerCase();
+  if(name.slice(-5)===".webp" || f.type==="image/webp"){ cb({error:"WebP is not accepted. Your Vault photos must be JPG or PNG, as you saved them."}); return; }
+  if(!(name.slice(-4)===".jpg" || name.slice(-5)===".jpeg" || name.slice(-4)===".png")){
+    cb({error:"Only JPG or PNG uploads are accepted for Vault photos."}); return;
+  }
+  var r = new FileReader();
+  r.onload = function(){ cb({dataUrl:r.result, name:f.name, where:"Uploaded in this dashboard (browser storage)"}); };
+  r.onerror = function(){ cb({error:"Could not read that file. Try again."}); };
+  r.readAsDataURL(f);
+}
+document.getElementById("vaultForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var errEl=document.getElementById("vaultErr"); errEl.textContent="";
+  var name=document.getElementById("vName").value.trim();
+  var voice=document.getElementById("vVoice").value.trim();
+  readSlot(document.getElementById("vSlot1"), function(s1){
+    if(s1 && s1.error){ errEl.textContent=s1.error; return; }
+    readSlot(document.getElementById("vSlot2"), function(s2){
+      if(s2 && s2.error){ errEl.textContent=s2.error; return; }
+      var p={ id:"p"+Date.now(), letter:letterFor(personas.length), name:name, voice:voice,
+              slot1:(s1&&s1.dataUrl)?s1:null, slot2:(s2&&s2.dataUrl)?s2:null };
+      personas.push(p); saveAll();
+      document.getElementById("vaultForm").reset();
+      alert("Persona "+p.letter+" — "+p.name+" saved."+((p.slot1&&p.slot2)?" She is LOCKED (both slots filled).":" She is NOT locked yet — both Slot 1 and Slot 2 must be filled."));
+    });
+  });
+});
+function renderVault(){
+  var wrap=document.getElementById("vaultList"); wrap.innerHTML="";
+  document.getElementById("vaultBadge").textContent = personas.length;
+  if(personas.length===0){ wrap.innerHTML='<div class="empty">The Vault is empty. Add your first persona above — Glam herself is usually Persona A.</div>'; return; }
+  for(var i=0;i<personas.length;i++){
+    (function(p){
+      var locked = p.slot1 && p.slot2;
+      var d=document.createElement("div"); d.className="card";
+      d.innerHTML = "<h4>Persona "+p.letter+" — "+esc(p.name)+(locked?" 🔒 LOCKED":" ⚠️ NOT LOCKED")+"</h4>"+
+        '<p class="meta">Voice: '+esc(p.voice||"—")+"<br>Slot 1: "+(p.slot1?("✅ "+esc(p.slot1.name)):"❌ missing")+"<br>Slot 2: "+(p.slot2?("✅ "+esc(p.slot2.name)):"❌ missing")+"</p>";
+      var th=document.createElement("div"); th.className="thumbs";
+      th.innerHTML = '<div class="thumb">'+(p.slot1?('<img src="'+p.slot1.dataUrl+'" alt="Slot 1">'):'<div class="missing">Slot 1 missing</div>')+"<br>Slot 1 — reference</div>"+
+                     '<div class="thumb">'+(p.slot2?('<img src="'+p.slot2.dataUrl+'" alt="Slot 2">'):'<div class="missing">Slot 2 missing</div>')+"<br>Slot 2 — style sheet</div>";
+      d.appendChild(th);
+      var del=document.createElement("button"); del.className="btn light small"; del.textContent="Remove persona";
+      del.addEventListener("click", function(){ if(confirm("Remove Persona "+p.letter+" — "+p.name+"?")){ personas=personas.filter(function(x){return x.id!==p.id;}); for(var k=0;k<personas.length;k++){personas[k].letter=letterFor(k);} saveAll(); } });
+      d.appendChild(del);
+      wrap.appendChild(d);
+    })(personas[i]);
+  }
+}
+
+/* ---------- CONTENT VAULT ---------- */
+document.getElementById("assetForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var a={ id:"a"+Date.now(),
+    name: document.getElementById("aName").value.trim(),
+    type: document.getElementById("aType").value,
+    status: document.getElementById("aStatus").value,
+    where: document.getElementById("aWhere").value.trim(),
+    notes: document.getElementById("aNotes").value.trim(),
+    createdAt: Date.now() };
+  assets.unshift(a); saveAll();
+  document.getElementById("assetSaved").textContent="Saved to Content Vault ✔ — the Repurpose Agent will search it before anything new gets created.";
+  document.getElementById("assetForm").reset();
+});
+function renderAssets(){
+  var wrap=document.getElementById("assetList"); wrap.innerHTML="";
+  document.getElementById("assetBadge").textContent = assets.length;
+  if(assets.length===0){ wrap.innerHTML='<div class="empty">The Content Vault is empty. Log the photos, reels, text posts and greetings you already have — the Repurpose Agent searches here first, before anything new gets created.</div>'; return; }
+  for(var i=0;i<assets.length;i++){
+    (function(a){
+      var d=document.createElement("div"); d.className="card";
+      d.innerHTML="<h4>"+esc(a.name)+"</h4>"+
+        '<p class="meta">Type: '+esc(a.type)+"<br>Status: <strong>"+esc(a.status)+"</strong>"+
+        "<br>Where it lives: "+esc(a.where||"—")+
+        (a.notes?("<br>Notes: "+esc(a.notes)):"")+"</p>";
+      var del=document.createElement("button"); del.className="btn light small"; del.textContent="Delete asset";
+      del.addEventListener("click", function(){ if(confirm("Delete this Content Vault asset?")){ assets=assets.filter(function(x){return x.id!==a.id;}); saveAll(); } });
+      d.appendChild(del);
+      wrap.appendChild(d);
+    })(assets[i]);
+  }
+}
+function fillAssetSelect(){
+  var sel=document.getElementById("sAsset"); sel.innerHTML="";
+  if(assets.length===0){ var o0=document.createElement("option"); o0.value=""; o0.textContent="— Content Vault is empty — search it in chat —"; sel.appendChild(o0); return; }
+  var o1=document.createElement("option"); o1.value=""; o1.textContent="— let Muse search the whole vault in chat —"; sel.appendChild(o1);
+  for(var i=0;i<assets.length;i++){
+    var a=assets[i]; var o=document.createElement("option");
+    o.value=a.id; o.textContent=a.name+" ("+a.type+" — "+a.status+")";
+    sel.appendChild(o);
+  }
+}
+
+/* ---------- INTAKE ---------- */
+document.getElementById("intakeForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var pid=document.getElementById("inPersona").value;
+  var p=personaById(pid);
+  var angle=document.getElementById("inAngle").value;
+  var run={ id:"q"+Date.now(), kind:"full",
+    personaId: p?p.id:"", personaLabel: p?("Persona "+p.letter+" — "+p.name):"No persona picked",
+    destination: document.getElementById("inDest").value,
+    mode: document.getElementById("inMode").value,
+    angle: angle, angleSentence: ANGLE_SENTENCES[angle],
+    topic: document.getElementById("inTopic").value.trim(),
+    length: document.getElementById("inLength").value.trim(),
+    productName: document.getElementById("inProdName").value.trim(),
+    productLink: document.getElementById("inProdLink").value.trim(),
+    refLink: document.getElementById("inRefLink").value.trim(),
+    location: document.getElementById("inLocation").value,
+    notes: document.getElementById("inNotes").value.trim(),
+    status:"queued", createdAt: Date.now() };
+  queue.unshift(run); saveAll();
+  document.getElementById("intakeSaved").textContent="Saved to Queue ✔ — open the Queue tab and tap Run in Chat when you're ready.";
+  document.getElementById("intakeForm").reset(); anglePreviewSync();
+});
+
+/* ---------- SOLO ---------- */
+function buildSoloPrompt(o){
+  var lines=[];
+  lines.push("FACEBOOK FARM — SOLO JOB. Run this exact job, nothing swapped.");
+  lines.push("Agent: "+o.agent);
+  if(o.moneyScope){ lines.push("Money check scope: "+o.moneyScope); lines.push("Output wanted: Today's Money Moves — a ranked list. Real numbers only, never invented."); }
+  if(o.vaultAsset){ lines.push("Content Vault asset: "+o.vaultAsset); }
+  if(o.refresh){ lines.push("Refresh plan: "+o.refresh); lines.push("Rule: vault first, create second — new content only fills a gap the vault can't."); }
+  if(o.personaLabel){ lines.push("Persona: "+o.personaLabel); }
+  lines.push("Destination: "+o.destination);
+  lines.push("Mode: "+o.mode);
+  if(o.angle){ lines.push("Post Angle: "+o.angle+" — "+o.angleSentence); }
+  lines.push("Topic: "+o.topic);
+  if(o.length){ lines.push("Length / format: "+o.length); }
+  if(o.productName || o.productLink){ lines.push("Product: "+(o.productName||"")+" "+(o.productLink||"")); }
+  if(o.refLink){ lines.push("Reference link: "+o.refLink); }
+  if(o.notes){ lines.push("Notes: "+o.notes); }
+  lines.push("Rules: Facebook only. No invented prices or sales numbers. Nothing posts without Glam's approval.");
+  return lines.join("\n");
+}
+document.getElementById("soloForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var agent=document.getElementById("soloAgent").value;
+  var pid=document.getElementById("sPersona").value;
+  var p=personaById(pid);
+  var needsAngle = (agent.indexOf("Agent 5")===0 || agent.indexOf("Agent 6")===0);
+  var angle = needsAngle ? document.getElementById("sAngle").value : "";
+  var isMoney = (agent.indexOf("Agent 1")===0);
+  var isRepurpose = (agent.indexOf("Agent 2")===0);
+  var assetSel=document.getElementById("sAsset");
+  var assetLabel = (isRepurpose && assetSel.selectedIndex>=0 && assetSel.value) ? assetSel.options[assetSel.selectedIndex].textContent : (isRepurpose ? "Whole Content Vault — Muse searches it in chat" : "");
+  var o={ agent:agent, personaLabel: p?("Persona "+p.letter+" — "+p.name):"",
+    moneyScope: isMoney ? document.getElementById("sMoneyScope").value : "",
+    vaultAsset: assetLabel,
+    refresh: isRepurpose ? document.getElementById("sRefresh").value : "",
+    destination: document.getElementById("sDest").value,
+    mode: document.getElementById("sMode").value,
+    angle: angle, angleSentence: angle?ANGLE_SENTENCES[angle]:"",
+    topic: document.getElementById("sTopic").value.trim(),
+    length: document.getElementById("sLength").value.trim(),
+    productName: document.getElementById("sProdName").value.trim(),
+    productLink: document.getElementById("sProdLink").value.trim(),
+    refLink: document.getElementById("sRefLink").value.trim(),
+    notes: document.getElementById("sNotes").value.trim() };
+  var prompt=buildSoloPrompt(o);
+  var item={ id:"q"+Date.now(), kind:"solo", agent:agent,
+    moneyScope:o.moneyScope, vaultAsset:o.vaultAsset, refresh:o.refresh,
+    personaId:p?p.id:"", personaLabel:o.personaLabel||"No persona",
+    destination:o.destination, mode:o.mode, angle:o.angle, angleSentence:o.angleSentence,
+    topic:o.topic, length:o.length, productName:o.productName, productLink:o.productLink,
+    refLink:o.refLink, location:"—", notes:o.notes, soloPrompt:prompt,
+    status:"queued", createdAt:Date.now() };
+  queue.unshift(item); saveAll();
+  document.getElementById("soloOut").style.display="block";
+  document.getElementById("soloPrompt").textContent=prompt;
+  document.getElementById("soloCopied").textContent="";
+});
+document.getElementById("soloCopy").addEventListener("click", function(){
+  var txt=document.getElementById("soloPrompt").textContent;
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt); }
+  document.getElementById("soloCopied").textContent="Copied ✔ — paste it into chat.";
+});
+
+/* ---------- QUEUE + RUN IN CHAT ---------- */
+function buildRunPrompt(item){
+  var p=personaById(item.personaId);
+  var lines=[];
+  lines.push("FACEBOOK FARM — RUN THIS EXACT RUN. Nothing swapped.");
+  if(item.kind==="solo" && item.soloPrompt){ return item.soloPrompt; }
+  lines.push("Persona: "+item.personaLabel+(p?(" | Voice: "+(p.voice||"—")):""));
+  if(p){
+    lines.push("Slot 1 (reference photo): "+(p.slot1?("filled — "+p.slot1.name+" ("+p.slot1.where+")"):"MISSING"));
+    lines.push("Slot 2 (single 9:16 style sheet): "+(p.slot2?("filled — "+p.slot2.name+" ("+p.slot2.where+")"):"MISSING"));
+  }
+  lines.push("Destination: "+item.destination);
+  lines.push("Mode: "+item.mode);
+  lines.push("Post Angle: "+item.angle+" — "+item.angleSentence);
+  lines.push("Topic: "+item.topic);
+  if(item.length){ lines.push("Length / format: "+item.length); }
+  if(item.productName || item.productLink){ lines.push("Product: "+(item.productName||"")+" "+(item.productLink||"")); }
+  if(item.refLink){ lines.push("Reference link: "+item.refLink); }
+  lines.push("Location (Elkhart, Indiana, photo posts only): "+item.location);
+  if(item.notes){ lines.push("Notes: "+item.notes); }
+  lines.push("Workflow: Money & Analytics Scout reads the numbers (Today's Money Moves) → Repurpose Agent checks the Content Vault first (vault first, create second) → Facebook Scout → Image (PNG, real-photo-first for Glam, never slimmed down) → Caption & Script → Reel if needed (music low, voice dominant, AI label ON) → Post & Monetize check. Nothing posts without Glam's approval.");
+  return lines.join("\n");
+}
+var currentRunId=null;
+function openRunCard(item){
+  currentRunId=item.id;
+  item.status="working"; saveAll();
+  var p=personaById(item.personaId);
+  var wrap=document.getElementById("runCardWrap"); wrap.style.display="block";
+  var card=document.getElementById("runCard");
+  var html="<h4>"+(item.kind==="solo"?esc(item.agent||"Solo job"):"Full farm run")+" — "+esc(item.topic)+"</h4>";
+  html+='<p class="meta">Persona: '+esc(item.personaLabel)+"<br>Voice: "+esc(p?(p.voice||"—"):"—")+
+    "<br>Destination: "+esc(item.destination)+"<br>Mode: "+esc(item.mode)+
+    (item.angle?("<br>Post Angle: <strong>"+esc(item.angle)+'</strong><br><span class="angle">"'+esc(item.angleSentence)+'"</span>'):"")+
+    "<br>Length / format: "+esc(item.length||"—")+
+    "<br>Product: "+esc((item.productName||"")+" "+(item.productLink||"")||"—")+
+    "<br>Reference link: "+esc(item.refLink||"—")+
+    "<br>Location (Elkhart, photo posts only): "+esc(item.location||"—")+
+    "<br>Status: working</p>";
+  if(p){
+    html+='<div class="thumbs"><div class="thumb">'+(p.slot1?('<img src="'+p.slot1.dataUrl+'" alt="Slot 1">'):'<div class="missing">Slot 1 missing</div>')+"<br>Slot 1 — "+(p.slot1?("✅ "+esc(p.slot1.where)):"❌ missing")+'</div>'+
+          '<div class="thumb">'+(p.slot2?('<img src="'+p.slot2.dataUrl+'" alt="Slot 2">'):'<div class="missing">Slot 2 missing</div>')+"<br>Slot 2 — "+(p.slot2?("✅ "+esc(p.slot2.where)):"❌ missing")+"</div></div>";
+  } else {
+    html+='<p class="meta">No locked persona on this run.</p>';
+  }
+  card.innerHTML=html;
+  document.getElementById("runPrompt").textContent=buildRunPrompt(item);
+  document.getElementById("runCopied").textContent="";
+  wrap.scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("runCopy").addEventListener("click", function(){
+  var txt=document.getElementById("runPrompt").textContent;
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt); }
+  document.getElementById("runCopied").textContent="Copied ✔ — paste it into chat and Muse runs it.";
+});
+document.getElementById("runClose").addEventListener("click", function(){ document.getElementById("runCardWrap").style.display="none"; });
+
+function renderQueue(){
+  var wrap=document.getElementById("queueList"); wrap.innerHTML="";
+  document.getElementById("queueBadge").textContent=queue.length;
+  if(queue.length===0){ wrap.innerHTML='<div class="empty">The Queue is empty. Save a full run from the Intake form, or a solo job from Solo Agents.</div>'; return; }
+  for(var i=0;i<queue.length;i++){
+    (function(item){
+      var d=document.createElement("div"); d.className="card";
+      d.innerHTML="<h4>"+(item.kind==="solo"?("🎯 "+esc(item.agent||"Solo")):"🌾 Full run")+" — "+esc(item.topic)+"</h4>"+
+        '<p class="meta">Persona: '+esc(item.personaLabel)+"<br>Destination: "+esc(item.destination)+"<br>Mode: "+esc(item.mode)+
+        (item.angle?("<br>Post Angle: <strong>"+esc(item.angle)+'</strong><br><span class="angle">"'+esc(item.angleSentence)+'"</span>'):"")+
+        "<br>Length / format: "+esc(item.length||"—")+"<br>Product: "+esc(((item.productName||"")+" "+(item.productLink||"")).trim()||"—")+
+        "<br>Status: <strong>"+esc(item.status)+"</strong></p>";
+      var sb=document.createElement("div"); sb.className="statusbtns";
+      ["queued","working","done"].forEach(function(st){
+        var b=document.createElement("button"); b.textContent=st; if(item.status===st){ b.className="on"; }
+        b.addEventListener("click", function(){ item.status=st; saveAll(); });
+        sb.appendChild(b);
+      });
+      var run=document.createElement("button"); run.className="btn small"; run.textContent="▶ Run in Chat";
+      run.addEventListener("click", function(){ openRunCard(item); });
+      sb.appendChild(run);
+      var del=document.createElement("button"); del.className="btn light small"; del.textContent="Delete";
+      del.addEventListener("click", function(){ if(confirm("Delete this queue item?")){ queue=queue.filter(function(x){return x.id!==item.id;}); saveAll(); } });
+      sb.appendChild(del);
+      d.appendChild(sb);
+      wrap.appendChild(d);
+    })(queue[i]);
+  }
+}
+
+function renderAll(){
+  fillSelect("inMode", MODES); fillSelect("sMode", MODES);
+  fillPersonaSelect("inPersona", false); fillPersonaSelect("sPersona", true);
+  fillAssetSelect();
+  anglePreviewSync(); soloAngleSync();
+  renderVault(); renderAssets(); renderQueue();
+}
+renderAll();
+</script>
+</body>
+</html>
