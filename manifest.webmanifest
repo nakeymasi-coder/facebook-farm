@@ -1,1 +1,24 @@
-{"background_color":"#e7f3ff","description":"Glam's Facebook control panel — intake, Persona Vault, Content Vault, solo agents, Queue, and Post Tracker.","display":"standalone","icons":[{"purpose":"any maskable","sizes":"192x192","src":"icon-192.png","type":"image/png"},{"purpose":"any maskable","sizes":"512x512","src":"icon-512.png","type":"image/png"}],"name":"Facebook Farm — Glam Hustle Hub","scope":".","short_name":"Facebook Farm","start_url":".","theme_color":"#1877f2"}
+{
+ "background_color": "#031736",
+ "description": "Glam's Facebook control panel — intake, Persona Vault, Content Vault, solo agents, Queue, and Post Tracker.",
+ "display": "standalone",
+ "icons": [
+  {
+   "purpose": "any maskable",
+   "sizes": "192x192",
+   "src": "icon-192.png",
+   "type": "image/png"
+  },
+  {
+   "purpose": "any maskable",
+   "sizes": "512x512",
+   "src": "icon-512.png",
+   "type": "image/png"
+  }
+ ],
+ "name": "Facebook Farm — Glam Hustle Hub",
+ "scope": ".",
+ "short_name": "Facebook Farm",
+ "start_url": ".",
+ "theme_color": "#0a2f66"
+}
