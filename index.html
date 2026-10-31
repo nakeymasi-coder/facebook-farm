@@ -3,68 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facebook Farm — Glam's Intake, Vault &amp; Queue</title>
+<title>Facebook Farm - Glam Hustle Hub</title>
 <style>
-  :root{
-    --sapphire:#7fb2e5; --sapphire-deep:#4a86c5; --chrome:#c9d4e0; --pearl:#fdfdff;
-    --ink:#2b3a4a; --soft:#5b7186; --line:#dbe7f3; --mint:#eaf7f1; --gold:#c9a227;
-    --grad:linear-gradient(135deg,#a8cbf2 0%,#e8eef5 55%,#fdfdff 100%);
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--grad);color:var(--ink);min-height:100vh}
-  .wrap{max-width:1080px;margin:0 auto;padding:18px 14px 40px}
-  header.hero{background:var(--pearl);border:1px solid var(--line);border-radius:20px;padding:22px 20px;box-shadow:0 8px 24px rgba(74,134,197,.12);text-align:center}
-  header.hero h1{margin:0;font-size:34px;letter-spacing:2px;color:var(--sapphire-deep)}
-  header.hero .sub{margin:6px 0 0;color:var(--soft);font-style:italic}
-  .pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
-  .pill{border:1px solid var(--chrome);background:#f2f7fc;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft)}
-  nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-  nav.tabs button{flex:1 1 150px;padding:12px 8px;border-radius:14px;border:1px solid var(--chrome);background:var(--pearl);font-family:inherit;font-size:15px;cursor:pointer;color:var(--ink);box-shadow:0 2px 6px rgba(74,134,197,.08)}
-  nav.tabs button.active{background:var(--sapphire-deep);color:#fff;border-color:var(--sapphire-deep)}
-  .badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--gold);color:#fff;font-size:12px;margin-left:6px}
-  section.page{display:none;background:var(--pearl);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(74,134,197,.08)}
-  section.page.active{display:block}
-  h2{margin-top:0;color:var(--sapphire-deep)}
-  h3{color:var(--sapphire-deep)}
-  label{display:block;font-weight:bold;margin:14px 0 5px;font-size:14px}
-  input,select,textarea{width:100%;padding:10px;border:1px solid var(--chrome);border-radius:10px;font-family:inherit;font-size:15px;background:#fbfdff}
-  textarea{min-height:70px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media(max-width:640px){.row{grid-template-columns:1fr}}
-  .btn{display:inline-block;margin-top:14px;padding:11px 20px;border-radius:12px;border:1px solid var(--sapphire-deep);background:var(--sapphire-deep);color:#fff;font-family:inherit;font-size:15px;cursor:pointer}
-  .btn.light{background:#fff;color:var(--sapphire-deep)}
-  .btn.small{padding:6px 12px;font-size:13px;margin-top:0}
-  .note{background:var(--mint);border:1px solid #cfe8da;border-radius:12px;padding:12px 14px;font-size:14px}
-  .warn{background:#fdf3e3;border:1px solid #ecd9ac;border-radius:12px;padding:12px 14px;font-size:14px}
-  .err{color:#b3261e;font-size:14px;margin-top:6px}
-  .ok{color:#1e7d46;font-size:14px;margin-top:6px}
-  .card{border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;background:#fbfdff}
-  .card h4{margin:0 0 6px}
-  .meta{font-size:14px;color:var(--soft);line-height:1.55}
-  .angle{font-style:italic;color:var(--ink)}
-  .statusbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-  .statusbtns button{padding:6px 12px;border-radius:999px;border:1px solid var(--chrome);background:#fff;cursor:pointer;font-family:inherit;font-size:13px}
-  .statusbtns button.on{background:var(--sapphire-deep);color:#fff;border-color:var(--sapphire-deep)}
-  .thumbs{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-  .thumb{width:110px;text-align:center;font-size:12px;color:var(--soft)}
-  .thumb img{width:110px;height:196px;object-fit:cover;border-radius:10px;border:1px solid var(--chrome);background:#eef4fa}
-  .thumb .missing{width:110px;height:196px;border-radius:10px;border:1px dashed var(--chrome);display:flex;align-items:center;justify-content:center;background:#f6fafd;padding:6px}
-  pre.prompt{white-space:pre-wrap;background:#f2f7fc;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px;line-height:1.5}
-  .empty{color:var(--soft);font-style:italic;padding:18px;text-align:center;border:1px dashed var(--chrome);border-radius:14px}
-  footer.cta{margin-top:22px;text-align:center}
-  footer.cta .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  footer.cta a{flex:0 1 260px;text-align:center;text-decoration:none;padding:13px;border-radius:999px;font-size:15px}
-  footer.cta a.join{background:var(--sapphire-deep);color:#fff;border:1px solid var(--sapphire-deep)}
-  footer.cta a.shop{background:#fff;color:var(--sapphire-deep);border:1px solid var(--sapphire-deep)}
-  footer.cta .fine{color:var(--soft);font-size:12.5px;margin-top:10px}
-  ul.tight{line-height:1.6}
+*{box-sizing:border-box}
+:root{--fb:#1877f2;--fb-dark:#0d5cb6;--fb-deep:#0a2a5e;--fb-light:#a9cdf8;--fb-pale:#e7f3ff;--chrome:#c0c6ce;--pearl:#fdfcfa;--ink:#1c2b3a;--muted:#5a6b8a;--line:#cfe2f7;--good:#1e7a4c;--warn:#9a6a00}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(160deg,#dbeeff 0%,#fdfcfa 45%,#cfe4fd 100%);color:var(--ink);font-size:17px;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:0 0 60px}
+header.hero{background:linear-gradient(120deg,#0d5cb6,#1877f2 55%,#4aa3ff);padding:26px 16px 20px;text-align:center;color:#fff}
+header.hero h1{margin:0;font-size:30px;line-height:1.2;font-weight:800}
+header.hero .sub{margin:8px auto 0;max-width:640px;color:#e7f3ff;font-size:16px}
+.fblogo{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;background:#fff;color:var(--fb);font-size:36px;font-weight:800;line-height:1;margin:0 auto 10px;font-family:Helvetica,Arial,sans-serif}
+.pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.pill{border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.16);border-radius:999px;padding:4px 12px;font-size:13px;color:#fff;font-weight:600}
+nav.tabs{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;background:rgba(253,252,250,.96);border-bottom:1px solid var(--line);margin:0}
+nav.tabs button{flex:1 1 30%;max-width:200px;min-height:52px;border:2px solid var(--fb-light);background:#fff;border-radius:14px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;padding:8px 4px;font-family:inherit}
+nav.tabs button.active{background:linear-gradient(120deg,var(--fb),#4aa3ff);color:#fff;border-color:var(--fb)}
+.badge{display:inline-block;background:var(--fb);color:#fff;border-radius:999px;padding:0 8px;font-size:13px;margin-left:4px;vertical-align:middle}
+nav.tabs button.active .badge{background:#fff;color:var(--fb)}
+section.page{display:none;padding:16px 14px 0}
+section.page.active{display:block}
+section.page>h2,section.page h2{margin:2px 0 12px;font-size:24px;color:var(--fb-deep)}
+h3{color:var(--fb-deep);font-size:19px;margin:16px 0 8px}
+label{display:block;font-weight:700;margin:16px 0 6px;font-size:16px}
+input,select,textarea{width:100%;min-height:52px;border:2px solid var(--chrome);border-radius:12px;padding:12px;font-size:17px;background:#fff;color:var(--ink);font-family:inherit}
+textarea{min-height:96px;resize:vertical}
+input[type=file]{min-height:0;font-size:16px;padding:10px 0;border:none;background:transparent}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+.btn{display:inline-block;margin-top:14px;min-height:56px;padding:13px 22px;border:none;border-radius:14px;background:linear-gradient(120deg,var(--fb),#4aa3ff);color:#fff;font-family:inherit;font-size:18px;font-weight:800;cursor:pointer}
+.btn.light{background:#fff;color:var(--fb-dark);border:2px solid var(--fb)}
+.btn.small{min-height:48px;font-size:16px;padding:9px 16px;margin-top:0}
+.note{background:var(--fb-pale);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:15px;margin:0 0 12px}
+.warn{background:#fff7dd;border:2px solid #ecd27a;border-radius:14px;padding:14px;font-size:15px;font-weight:600;margin:0 0 12px}
+.err{color:#b00020;font-weight:700;font-size:15px;margin-top:8px}
+.ok{color:var(--good);font-weight:700;font-size:15px;margin-top:8px}
+.card{background:var(--pearl);border:1px solid var(--line);border-radius:18px;padding:18px;margin:0 0 16px;box-shadow:0 2px 10px rgba(24,119,242,.10)}
+.card h4{margin:0 0 8px;font-size:18px;color:var(--fb-deep)}
+.meta{font-size:15px;color:var(--muted);line-height:1.55;margin:0 0 10px}
+.angle{font-style:italic;color:var(--ink)}
+.statusbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.statusbtns button{flex:1 1 90px;min-height:48px;padding:8px 12px;border-radius:12px;border:2px solid var(--fb-light);background:#fff;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink)}
+.statusbtns button.on{background:var(--fb);color:#fff;border-color:var(--fb)}
+.thumbs{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.thumb{width:110px;text-align:center;font-size:12px;color:var(--muted)}
+.thumb img{width:110px;height:196px;object-fit:cover;border-radius:12px;border:1px solid var(--chrome);background:var(--fb-pale)}
+.thumb .missing{width:110px;height:196px;border-radius:12px;border:2px dashed var(--chrome);display:flex;align-items:center;justify-content:center;background:var(--fb-pale);padding:6px}
+pre.prompt{white-space:pre-wrap;word-break:break-word;background:var(--fb-deep);color:#eaf2ff;border-radius:14px;padding:14px;font-size:15px;line-height:1.55;margin:12px 0 0}
+.empty{border:2px dashed var(--chrome);border-radius:14px;padding:20px;text-align:center;color:var(--muted);background:#fff}
+footer.cta{margin-top:26px;text-align:center;padding:0 14px}
+footer.cta .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+footer.cta a{flex:1 1 220px;max-width:320px;text-align:center;text-decoration:none;padding:14px;border-radius:999px;font-size:17px;font-weight:800;min-height:52px}
+footer.cta a.join{background:linear-gradient(120deg,var(--fb),#4aa3ff);color:#fff;border:2px solid var(--fb)}
+footer.cta a.shop{background:#fff;color:var(--fb-dark);border:2px solid var(--fb)}
+footer.cta .fine{color:var(--muted);font-size:13px;margin-top:10px}
+ul.tight{line-height:1.65;margin:8px 0;padding-left:22px}
+@media(min-width:700px){header.hero h1{font-size:36px}nav.tabs button{flex:0 1 auto}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="hero">
-    <h1>🦋 FACEBOOK FARM</h1>
-    <p class="sub">My intake, my vault, my queue — for Facebook only.</p>
+    <div class="fblogo">f</div>
+    <h1>🦋 Facebook Farm 🦋</h1>
+    <p class="sub">Your control panel for Facebook — intake, Persona Vault, Content Vault, solo agents, Queue, and Post Tracker, all in one place.</p>
     <div class="pills">
       <span class="pill">Profile • Page • Group</span>
       <span class="pill">7 agents</span>
