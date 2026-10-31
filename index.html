@@ -304,16 +304,16 @@ ul.tight{line-height:1.65;margin:8px 0;padding-left:22px}
   <!-- VAULT -->
   <section class="page" id="page-vault">
     <h2>🔐 Persona Vault — locked personas</h2>
-    <p class="meta">A persona is <strong>locked</strong> only when BOTH slots are filled. Slot 1: reference photo, 9:16. Slot 2: ONE single 9:16 style reference sheet with front, side view, profile and three-quarter shots of the same persona in the same look, all on that same photo. Uploads are accepted as <strong>JPG or PNG</strong>, as you saved them — WebP is rejected. For Glam, Slot 1 is a REAL photo. Never slimmed down, ever.</p>
+    <p class="meta">A persona is <strong>locked</strong> only when BOTH slots are filled. Slot 1: reference photo, 9:16. Slot 2: ONE single 9:16 style reference sheet with front, side view, profile and three-quarter shots of the same persona in the same look, all on that same photo. Uploads: <strong>any photo from your phone</strong> — JPG, PNG, WebP, whatever you have. The farm converts it to a storage-sized JPG for you, right on this page. For Glam, Slot 1 is a REAL photo. Never slimmed down, ever.</p>
     <form id="vaultForm">
       <div class="row">
         <div><label>Persona name</label><input id="vName" required placeholder="e.g. Glam, Renee, Marcus"></div>
         <div><label>Voice description</label><input id="vVoice" placeholder="e.g. My own voice / no voiceover"></div>
       </div>
-      <label>Slot 1 — reference photo (9:16, JPG or PNG)</label>
-      <input type="file" id="vSlot1" accept=".jpg,.jpeg,.png">
-      <label>Slot 2 — single 9:16 style reference sheet (JPG or PNG)</label>
-      <input type="file" id="vSlot2" accept=".jpg,.jpeg,.png">
+      <label>Slot 1 — reference photo (9:16)</label>
+      <input type="file" id="vSlot1" accept="image/*">
+      <label>Slot 2 — single 9:16 style reference sheet</label>
+      <input type="file" id="vSlot2" accept="image/*">
       <p class="err" id="vaultErr"></p>
       <button class="btn" type="submit">Save persona</button>
     </form>
@@ -589,15 +589,26 @@ document.getElementById("soloAgent").addEventListener("change", soloAngleSync);
 function readSlot(fileInput, cb){
   var f = fileInput.files && fileInput.files[0];
   if(!f){ cb(null); return; }
-  var name = f.name.toLowerCase();
-  if(name.slice(-5)===".webp" || f.type==="image/webp"){ cb({error:"WebP is not accepted. Your Vault photos must be JPG or PNG, as you saved them."}); return; }
-  if(!(name.slice(-4)===".jpg" || name.slice(-5)===".jpeg" || name.slice(-4)===".png")){
-    cb({error:"Only JPG or PNG uploads are accepted for Vault photos."}); return;
-  }
-  var r = new FileReader();
-  r.onload = function(){ cb({dataUrl:r.result, name:f.name, where:"Uploaded in this dashboard (browser storage)"}); };
-  r.onerror = function(){ cb({error:"Could not read that file. Try again."}); };
-  r.readAsDataURL(f);
+  // Take the photo as it comes (JPG, PNG, WebP, screenshot — whatever the
+  // phone hands over) and convert it to a storage-sized JPG in the browser,
+  // so big phone photos fit in browser storage instead of bouncing off.
+  var url = URL.createObjectURL(f);
+  var img = new Image();
+  img.onload = function(){
+    try{
+      var max = 1080;
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if(!w || !h){ URL.revokeObjectURL(url); cb({error:"That file did not open as a photo. Try a screenshot of it instead."}); return; }
+      var scale = Math.min(1, max / Math.max(w, h));
+      var c = document.createElement("canvas");
+      c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      cb({dataUrl:c.toDataURL("image/jpeg", 0.85), name:f.name, where:"Uploaded in this dashboard (browser storage)"});
+    }catch(e){ URL.revokeObjectURL(url); cb({error:"Could not process that photo. Try a different one."}); }
+  };
+  img.onerror = function(){ URL.revokeObjectURL(url); cb({error:"That file could not be opened as a photo. Try a screenshot of it instead."}); };
+  img.src = url;
 }
 document.getElementById("vaultForm").addEventListener("submit", function(e){
   e.preventDefault();
