@@ -120,6 +120,27 @@ footer.cta a.shop{background:rgba(255,255,255,.1);color:#eaf3ff;border:2px solid
 footer.cta .fine{color:#a9c6ee;font-size:.82rem;margin-top:10px}
 ul.tight{line-height:1.65;margin:8px 0;padding-left:22px}
 @media(prefers-reduced-motion:reduce){.bg-fx span,.bg-fx::after,section.page h2::after,.gate-title .gl,#enterBtn,.gate-fly,.gate-tag,.gate-note,.gate-rings{animation:none!important}.gate-title .gl,.gate-tag,.gate-note,.gate-fly,#enterBtn{opacity:1!important;transform:none!important}}
+
+/* ---------- live portal (coded, not a graphic) ---------- */
+.portal-scene{position:absolute;left:50%;top:44%;width:150vmax;height:150vmax;transform:translate(-50%,-50%);pointer-events:none}
+.portal-scene .ring{position:absolute;left:50%;top:50%;border-radius:50%;border:3px solid rgba(140,200,255,.0);box-shadow:0 0 24px rgba(74,163,255,.35),inset 0 0 24px rgba(74,163,255,.35);transform:translate(-50%,-50%) scale(.06);opacity:0;animation:tunnel 4.8s linear infinite}
+.portal-scene .ring:nth-child(1){animation-delay:0s}
+.portal-scene .ring:nth-child(2){animation-delay:.8s}
+.portal-scene .ring:nth-child(3){animation-delay:1.6s}
+.portal-scene .ring:nth-child(4){animation-delay:2.4s}
+.portal-scene .ring:nth-child(5){animation-delay:3.2s}
+.portal-scene .ring:nth-child(6){animation-delay:4s}
+.portal-scene .ring{width:100%;height:100%}
+@keyframes tunnel{0%{transform:translate(-50%,-50%) scale(.05);opacity:0;border-color:rgba(180,220,255,.95)}12%{opacity:1}82%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1.05);opacity:0;border-color:rgba(120,190,255,.25)}}
+.portal-core{position:absolute;left:50%;top:44%;width:34vmin;height:34vmin;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(230,245,255,.95) 0%,rgba(140,200,255,.55) 34%,rgba(24,119,242,.12) 68%,rgba(24,119,242,0) 72%);animation:corePulse 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes corePulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}}
+#gate.leaving .portal-scene .ring{animation-duration:.55s}
+.gate-fly{animation:gateFade 1s ease .15s forwards,flyFloat 3.4s ease-in-out 1.2s infinite}
+@keyframes flyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.gate-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px;opacity:0;animation:gateFade .8s ease 2.1s forwards}
+.gate-chips button{min-height:54px;padding:12px 20px;border-radius:16px;border:2px solid rgba(190,220,255,.65);background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(210,232,255,.9));color:var(--fb-deep);font-size:1.02rem;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 10px 24px rgba(2,16,44,.45),inset 0 1px 0 #fff}
+.gate-chips button:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.portal-scene .ring,.portal-core,.gate-chips{animation:none!important}.gate-chips{opacity:1!important}.portal-scene .ring{opacity:.25;transform:translate(-50%,-50%) scale(.6)}}
 </style>
 </head>
 <body>
@@ -127,17 +148,21 @@ ul.tight{line-height:1.65;margin:8px 0;padding-left:22px}
   <div class="bg-fx" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
   <div id="gate" role="dialog" aria-label="Facebook Farm entrance">
-    <div class="gate-rings"></div>
+    <div class="portal-scene" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
+    <div class="portal-core" aria-hidden="true"></div>
     <div class="gate-shade"></div>
     <div class="gate-inner">
-      <img class="gate-design" src="gate-art.jpg" alt="Facebook Farm — Where Posts Turn Into Money" onerror="this.style.display='none';document.getElementById('gateFallback').style.display='block'">
-      <div id="gateFallback">
-        <div class="gate-fly">🦋</div>
-        <h1 class="gate-title" id="gateTitle">FACEBOOK FARM</h1>
-        <p class="gate-tag">Where Posts Turn Into Money 🦋</p>
-      </div>
+      <div class="gate-fly">🦋</div>
+      <h1 class="gate-title" id="gateTitle">FACEBOOK FARM</h1>
+      <p class="gate-tag">Where Posts Turn Into Money 🦋</p>
       <button type="button" id="enterBtn">Enter the Farm</button>
-      <p class="gate-note">Your Facebook control panel is right through the portal.</p>
+      <div class="gate-chips">
+        <button type="button" data-goto="home">Home</button>
+        <button type="button" data-goto="intake">Intake</button>
+        <button type="button" data-goto="vault">Vault</button>
+        <button type="button" data-goto="queue">Queue</button>
+      </div>
+      <p class="gate-note">Tap Enter — or pick a chip and jump straight there.</p>
     </div>
   </div>
 
@@ -926,13 +951,19 @@ renderAll();
       title.appendChild(s);
     }
   }
-  var btn=document.getElementById("enterBtn");
-  btn.addEventListener("click", function(){
-    if(gate.classList.contains("leaving")) return;
+  var entered=false;
+  function enterFarm(tab){
+    if(entered) return; entered=true;
     gate.classList.add("leaving");
     document.body.classList.remove("gate-locked");
+    if(tab && tab!=="home" && typeof showTab==="function"){ showTab(tab); }
     setTimeout(function(){ gate.style.display="none"; }, 730);
-  });
+  }
+  document.getElementById("enterBtn").addEventListener("click", function(){ enterFarm("home"); });
+  var chips=gate.querySelectorAll("[data-goto]");
+  for(var c=0;c<chips.length;c++){
+    chips[c].addEventListener("click", function(){ enterFarm(this.getAttribute("data-goto")); });
+  }
 })();
 </script>
 </body>
